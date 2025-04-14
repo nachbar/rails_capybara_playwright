@@ -191,8 +191,8 @@ RSpec.configure do |config|
     # Use the :playwright driver for system tests by default
 
     # NOTE: to run system tests in a non-headless mode, you can use the :playwright_non_headless driver
-    # driven_by :playwright
-    driven_by :playwright_non_headless
+    driven_by :playwright
+    # driven_by :playwright_non_headless
   end
 
   # Optional: Configure Playwright page options for system tests
