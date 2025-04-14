@@ -20,7 +20,8 @@
   },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [3000, 5432],
+  // add 5901 to allow non-headless via VNC
+  "forwardPorts": [3000, 5432, 5901],
 
   // Configure tool-specific properties.
   // "customizations": {},
@@ -34,5 +35,9 @@
   // Have to install playwright here rather than in the Dockerfile so it uses the correct user to install playwright.
   
   // version that worked with headless:
-  "postCreateCommand": "bin/setup --skip-server  &&  sudo apt-get update && sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libgbm-dev libasound2 && npm install playwright && npx playwright install --with-deps chromium"
+  // "postCreateCommand": "bin/setup --skip-server  &&  sudo apt-get update && sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libgbm-dev libasound2 && npm install playwright && npx playwright install --with-deps chromium"
+
+  // Add to that to be able to use non-headless
+  "postCreateCommand": "bin/setup --skip-server  &&  sudo apt-get update && sudo apt-get install -y xvfb x11vnc fluxbox xterm dbus-x11 libnss3 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libgbm-dev libasound2 && npm install playwright && npx playwright install --with-deps chromium"
+
 }

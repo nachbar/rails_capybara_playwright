@@ -1,0 +1,29 @@
+#!/bin/bash
+# script to start the vnc server without a password
+# If you then want to stop the vnc server, or restart with a password,
+# merely kill the Xvfb and x11vnc processes and then you can
+# restart with either script
+
+# Start Xvfb on display :1 with a resolution (e.g., 1280x1024)
+# The '&' runs it in the background
+Xvfb :1 -screen 0 1280x1024x24 &
+
+# Give Xvfb a moment to start
+sleep 2
+
+# Start the window manager (optional, but recommended)
+DISPLAY=:1 fluxbox &
+
+# Start x11vnc, attaching to display :1, no password, listen on all interfaces
+# -forever keeps it running even after the first client disconnects
+# -nopw disables password prompting (acceptable for local devcontainer)
+# -xkb helps with keyboard mapping
+# -display :1 connects it to the Xvfb screen
+
+# BUT, it still connects to port 5900, apparently a default.  So, set the port explicitly
+# x11vnc -display :1 -nopw -forever -xkb &
+x11vnc -display :1 -rfbport 5901 -nopw -forever -xkb -listen 0.0.0.0 &
+
+echo "VNC Server Started on display :1. Connect using vnc://localhost:5901"
+echo "Run tests in another terminal using: DISPLAY=:1 bundle exec rspec ..."
+

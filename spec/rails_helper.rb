@@ -98,6 +98,75 @@ RSpec.configure do |config|
     )
   end
 
+  # Configure the Playwright driver for non-headless mode.
+  #
+  # TO USE THIS, change the
+  # driven_by line in the system test config to use :playwright_non_headless
+  # THEN, FROM A TERMINAL, run bin/start_vnc_server to start a VNC server
+  # (tigervnc also has a server that worked for me)
+
+  # THEN, CONNECT TO THE VNC SERVER ON localhost:5901 USING A VNC VIEWER
+
+  # Of the VNC viewers:
+  # The MacBook Screen Sharing asks for a password, and I could not get it to work with this setup.
+
+  # However, using TigerVNC Viewer on the MacBook, I was able to connect to the VNC server and see the browser.
+  # You can install TigerVNC Viewer using brew install --cask tigervnc-viewer
+  # Then, you can run it from the Applications folder (TigerVNC Viewer), and connect to localhost:5901
+
+  # Another option is to use RealVNC viewer.
+  # After installation, RealVNC Viewer is in the Applications folder as "VNC Viewer"
+
+  # When running the system tests, from a devcontainer terminal, use:
+  # $ DISPLAY=:1 rspec spec/system/
+  #
+  # You can also use xterm with:
+  # $ DISPLAY=:1 xterm
+  # xterm does not play well with the vncviewer that homebrew installs with brew install tiger-vnc, and requires manual
+  # refreshes.  The TigerVNC viewer app and RealVNC viewer app both work well with xterm and also refresh better
+  # than the VNC viewer that homebrew installs with brew install tiger-vnc.
+  #
+  # IF YOU WANT TO SET A PASSWORD FOR THE VNC SERVER:
+  # First, create the password file with:
+  # # x11vnc -storepasswd
+  # This will prompt you for a password and create a file ~/.vnc/passwd
+  #
+  # I could not locate a working vncpasswd command in the devcontainer
+
+  # Then, start the server with a password file using bin/start_vnc_server_password, which starts the server with:
+  # x11vnc -display :1 -rfbport 5901 -usepw -forever -listen 0.0.0.0 &
+  # (removing the -nopw option and setting -useps, which defaults to using ~/.vnc/passwd)
+  #
+  # YOU MUST RUN RSPEC WITH DISPLAY=:1 TO CONNECT TO THE Xvfb DISPLAY
+  # Otherwise, it will try to connect to the default display :0, which is not running
+  # rspec will fail, with playwright telling you that you do not have an X display running.  Like:
+  # DISPLAY=:1 bundle exec rspec ...
+  #
+  # AND DON'T FORGET TO CHANGE THE driven_by LINE IN THE SYSTEM TEST CONFIG TO USE :playwright_non_headless
+  Capybara.register_driver :playwright_non_headless do |app|
+    Capybara::Playwright::Driver.new(
+      app,
+      # Select the browser: :chromium, :firefox, or :webkit
+      browser_type: :chromium,
+      # Run in headless mode (no visible browser window) - Recommended for containers/CI
+      headless: false, # Set to false if you somehow have X11 forwarding/VNC setup for debugging
+        # You might need to adjust timeouts depending on your app and container performance
+        # page_settings: { default_navigation_timeout: 10_000, default_timeout: 5_000 },
+        # Other Playwright launch options can go here if needed
+        # launch_options: { slow_mo: 50 } # Example: slows down execution for observation
+
+        # Provided with non-headless
+        # Optional: Increase timeouts if running non-headless is slower
+        # page_settings: { default_navigation_timeout: 15_000, default_timeout: 7_000 },
+        # Pass DISPLAY environment variable if needed (often handled globally)
+        # launch_options: {
+        #   env: { 'DISPLAY' => ENV['DISPLAY'] || ':1' }
+        # }
+
+      )
+  end
+
+
   # == IMPORTANT: Devcontainer Network Configuration ==
   # Tell Capybara to bind the Rails server to all interfaces within the container
   Capybara.server_host = '0.0.0.0'
@@ -120,7 +189,10 @@ RSpec.configure do |config|
   # == System Test Configuration ==
   config.before(:each, type: :system) do
     # Use the :playwright driver for system tests by default
-    driven_by :playwright
+
+    # NOTE: to run system tests in a non-headless mode, you can use the :playwright_non_headless driver
+    # driven_by :playwright
+    driven_by :playwright_non_headless
   end
 
   # Optional: Configure Playwright page options for system tests
