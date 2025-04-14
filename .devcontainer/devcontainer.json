@@ -30,5 +30,9 @@
 
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bin/setup --skip-server"
+
+  // Have to install playwright here rather than in the Dockerfile so it uses the correct user to install playwright.
+  
+  // version that worked with headless:
+  "postCreateCommand": "bin/setup --skip-server  &&  sudo apt-get update && sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0 libgbm-dev libasound2 && npm install playwright && npx playwright install --with-deps chromium"
 }

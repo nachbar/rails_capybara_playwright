@@ -32,6 +32,11 @@ begin
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
+# For capybara and playwright
+require 'capybara/rspec'
+require 'capybara/playwright' # Require the playwright driver
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
@@ -67,4 +72,61 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  #
+  # == Capybara Settings == config from Gemini 2.5
+
+  # Make Capybara DSL available in system specs
+  config.include Capybara::DSL, type: :system
+
+  # Set the default driver to Playwright
+  Capybara.default_driver = :playwright
+  # Also use Playwright for tests tagged with :js
+  Capybara.javascript_driver = :playwright
+
+  # Configure the Playwright driver
+  Capybara.register_driver :playwright do |app|
+    Capybara::Playwright::Driver.new(
+      app,
+      # Select the browser: :chromium, :firefox, or :webkit
+      browser_type: :chromium,
+      # Run in headless mode (no visible browser window) - Recommended for containers/CI
+      headless: true, # Set to false if you somehow have X11 forwarding/VNC setup for debugging
+      # You might need to adjust timeouts depending on your app and container performance
+      # page_settings: { default_navigation_timeout: 10_000, default_timeout: 5_000 },
+      # Other Playwright launch options can go here if needed
+      # launch_options: { slow_mo: 50 } # Example: slows down execution for observation
+    )
+  end
+
+  # == IMPORTANT: Devcontainer Network Configuration ==
+  # Tell Capybara to bind the Rails server to all interfaces within the container
+  Capybara.server_host = '0.0.0.0'
+
+  # Tell Capybara how the browser (running inside the container) can reach the Rails server (also inside)
+  # Option 1: If using docker-compose, use the service name and port
+  # Replace 'web' with the name of your Rails app service in docker-compose.yml
+  # Replace '3000' with the port your Rails app runs on *inside* the container
+  # Capybara.app_host = "http://web:3000"
+
+  # Option 2: If *not* using docker-compose (single container), localhost might work if the port is exposed
+  # Capybara.app_host = "http://localhost:3000" # Check your setup
+
+  # Determine the correct app_host based on your devcontainer setup (docker-compose or single container).
+  # Often, using the server_port is sufficient if host is set correctly
+  Capybara.server_port = 3010 # Use a different port for testing than your standard dev port (3000)
+  Capybara.app_host = "http://#{IPSocket.getaddress(Socket.gethostname)}:#{Capybara.server_port}"
+
+
+  # == System Test Configuration ==
+  config.before(:each, type: :system) do
+    # Use the :playwright driver for system tests by default
+    driven_by :playwright
+  end
+
+  # Optional: Configure Playwright page options for system tests
+  # config.before(:each, type: :system, js: true) do
+  #   page.driver.browser.contexts.first.set_default_navigation_timeout(10_000) # Example
+  # end
+
+  #
 end
