@@ -57,7 +57,7 @@ If you do want to use a password, it must be set before calling the script, but 
 
 Not using a password is not as dangerous as it sounds, because VS Code will only map the port to localhost.
 
-Once you have started the XServer, you can connect to it using one of the VNC Viewers, at localhost:5901
+Once you have started the XServer, you can connect to it using one of the VNC Viewers, at `localhost:5901`
 
 If you do use `driven_by :playwright_non_headless`, be sure to include `DISPLAY=:1` before your rspec or xterm calls, like:
 
@@ -67,8 +67,8 @@ or, for an xterm into the container:
 
 `DISPLAY=:1 xterm`
 
-If you forget the DISPLAY=:1 (or forget to start the XServer, or misspell DISPLAY), you will get an error from playwright:
+If you forget the `DISPLAY=:1` (or forget to start the XServer, or misspell DISPLAY), you will get an error from playwright:
 
 `Looks like you launched a headed browser without having a XServer running.  Set either 'headless: true' or use 'xvfb-run <your-playwright-app>' before running Playwright.  <3 Playwright Team`
 
-The instructions are included as comments in spec/rails_helper.rb
+The instructions are included as comments in `spec/rails_helper.rb`
