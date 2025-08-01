@@ -82,7 +82,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (7.0.2)
+    brakeman (7.1.0)
       racc
     builder (3.3.0)
     capybara (3.40.0)
@@ -185,6 +185,8 @@ GEM
     nokogiri (1.18.7-arm-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.7-arm-linux-musl)
+      racc (~> 1.4)
+    nokogiri (1.18.7-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.7-x86_64-linux-gnu)
       racc (~> 1.4)
@@ -367,6 +369,7 @@ PLATFORMS
   aarch64-linux-musl
   arm-linux-gnu
   arm-linux-musl
+  x86_64-darwin-23
   x86_64-linux
   x86_64-linux-gnu
   x86_64-linux-musl
